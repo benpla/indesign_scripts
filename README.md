@@ -1,4 +1,10 @@
+## various scripts for daily use in Indesign
+
 ## verschiedene Skripte zur täglichen Nutzung in Indesign
+
+Stichworte/Tags: Adobe Extendscript, Javascript, Indesign Automation
+
+
 
 #### Skript "erstelle Bildoverlay mit Metadaten.jsx"
 
