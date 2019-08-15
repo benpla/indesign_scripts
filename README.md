@@ -1,4 +1,9 @@
-### BESCHREIBUNG:
+verschiedene Skripte zur täglichen Nutzung in Indesign
+
+#### Skript "erstelle Bildoverlay mit Metadaten.jsx"
+
+###### BESCHREIBUNG:
+
 Erzeugt Bildunterschriften für alle markierten Objekte mit verknüpften Grafiken.
 Dafür werden alle Metadaten aus der verknüpften Bilddatei gelesen und zu einer informativen Bildunterschrift zusammengestellt. 
 Anschließend wird ein Textrahmen, welcher unter dem Bild platziert wird. 
@@ -8,7 +13,7 @@ Dabei wird geprüft, ob die Bildunterschrift aufgrund zu geringer Breite des Bil
 Der Test der Bildunterschrift wird in einer Schleife so lange intelligent gekürzt, bis er in eine einzige Zeile passt.
 Die Art des Umbruchs kann in der Funktion 'GetXmpMetadataTextFromImage' angepasst werden. 
 
-### DESCRIPTION: 
+###### DESCRIPTION: 
 Creates captions for all selected objects with linked graphics.
 All metadata is read from the linked image file and combined into an informative caption. 
 A text frame is then placed under the image. All text frames with picture captions are created in a separate layer for picture captions. 
