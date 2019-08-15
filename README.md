@@ -20,8 +20,8 @@ A text frame is then placed under the image. All text frames with picture captio
 The text frame contains the text with the metadata. The system checks whether the caption is wrapped because the width of the image is too small. The caption test is intelligently shortened in a loop until it fits into a single line.
 The type of wrapping can be adjusted in the function 'GetXmpMetadataTextFromImage'. 
 
-![indesign_whole_page](fig\indesign_whole_page.png)
+![indesign_whole_page](fig/indesign_whole_page.png)
 
 
 
-![indesign_detail](fig\indesign_detail.png)
+![indesign_detail](fig/indesign_detail.png)
