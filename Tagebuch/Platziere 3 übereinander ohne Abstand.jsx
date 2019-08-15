@@ -27,7 +27,7 @@ Dabei werden die Objekte exakt am Raster ausgerichtet:
 
 #target Indesign
  
-#include  "includes/Platzierungsfunktionen.jsx"
+#include  "../includes/Platzierungsfunktionen.jsx"
  
 var mySelection = null; 
 

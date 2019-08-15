@@ -22,7 +22,7 @@ BESCHREIBUNG: überträgt bei 2 selektierten Objekten die Rahmengröße des erst
 
 #target Indesign
  
-#include  "includes/Platzierungsfunktionen.jsx"
+#include  "../includes/Platzierungsfunktionen.jsx"
  
 var mySelection = null; 
 
