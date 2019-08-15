@@ -1,4 +1,4 @@
-/* This file is part of the ** indesign_scripts distribution ** (https://github.com/benpla/indesign_scripts.git).
+﻿/* This file is part of the ** indesign_scripts distribution ** (https://github.com/benpla/indesign_scripts.git).
 Copyright © 2017 - 2019 by Benny Platte
 Licensed under the EUPL 1.2 (European Union Public Licence 1.2)
 Licence text is available in different languages under https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
