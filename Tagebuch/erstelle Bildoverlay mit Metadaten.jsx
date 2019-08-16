@@ -145,9 +145,13 @@ function GetXmpMetadataTextFromImage(filepath) {
         }
               
         var pixelX= xmp.getProperty("http://ns.adobe.com/exif/1.0/",  "PixelXDimension");  //
-        var aperture= eval(xmp.getProperty(XMPConst.NS_EXIF,  "ApertureValue").value).toFixed(1);  //
-        var shutterSpeed= eval(xmp.getProperty(XMPConst.NS_EXIF,  "ShutterSpeedValue").value);  //
-        var focalLength= eval(xmp.getProperty(XMPConst.NS_EXIF,  "FocalLength").value);  //
+        var aperture= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ApertureValue", null);  //
+        if (aperture != null) {
+            aperture = eval(aperture.value).toFixed(1);
+        }
+
+        var shutterSpeed= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ShutterSpeedValue", null);  //
+        var focalLength= GetXmpValue(xmp, XMPConst.NS_EXIF,  "focalLength", null);  //
         var focalLengthIn35mmFilm= GetXmpValue(xmp, XMPConst.NS_EXIF,  "FocalLengthIn35mmFilm", null);  //
         var dateTimeDigitized= GetXmpValue(xmp, XMPConst.NS_EXIF,  "DateTimeDigitized", null);  //
         var exposureProgram= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ExposureProgram", null);  //
@@ -164,18 +168,30 @@ function GetXmpMetadataTextFromImage(filepath) {
         var myLong = xmp.getProperty(XMPConst.NS_EXIF, "exif:GPSLongitude");
         
         // Belichtungs-Infomation
-        var belichtungsInfo = exposureTime + "s f" + aperture
+        if (exposureTime != null && aperture != null) {
+            var belichtungsInfo = exposureTime + "s f" + aperture;
+        } 
+        else if (exposureTime != null ) {
+            var belichtungsInfo = exposureTime + "s";
+        }
+        else {
+            var belichtungsInfo = "";
+        }
+    
         if (isoValue != null) belichtungsInfo += " Iso " + isoValue
         
         
         // Brennweite
-        if (focalLengthIn35mmFilm != null) {
+        if (focalLengthIn35mmFilm != null && focalLength != null ) {
             brennweitenInfo = " @" + focalLength.toFixed(0) + " (" + focalLengthIn35mmFilm + ")mm"
         }
-        else {
+        else if (focalLength != null) {
             brennweitenInfo = " @" + focalLength.toFixed(0) + "mm"
         }
-        
+        else {
+            brennweitenInfo = ""
+        }       
+    
         // Objektiv
         if (lens == "LEICA DG 12-60/F2.8-4.0") {
             lens = "L12-60"
