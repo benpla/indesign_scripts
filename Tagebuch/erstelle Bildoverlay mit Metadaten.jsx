@@ -129,6 +129,16 @@ function GetXmpMetadataTextFromImage(filepath) {
         xmpf.closeFile()
         
         var exposureTime= xmp.getProperty(XMPConst.NS_EXIF,  "ExposureTime").value;  //
+        // if exposureTime String contains "/" and a other number than "1" as counter, then reformat
+        if (exposureTime != null 
+            && ~exposureTime .indexOf("1/") >= 0    //  NOT  "1/" at beginning of string
+            && exposureTime .indexOf("/") >= 0        //  String contains "/"  
+            ) {
+            exposureTime = eval(exposureTime);
+            var t = 1 / exposureTime
+            exposureTime = "1/" + t.toFixed(0)
+        }
+       
         var exposureBias= xmp.getProperty(XMPConst.NS_EXIF,  "ExposureBiasValue").value;  //
 
         // ISO
