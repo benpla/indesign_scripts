@@ -96,6 +96,10 @@ function GetDate_ddmmyyhhmm(datum) {
 
 
 function GetXmpValue(xmp, namespace, exifFieldname, valueForNotExist) {
+    if (!xmp.doesPropertyExist (namespace,  exifFieldname)) {
+        $.writeln ("     '" + exifFieldname + "' not exist")
+        return valueForNotExist
+    }
     try {
         var value= xmp.getProperty(namespace,  exifFieldname).value;
         return value;
@@ -128,7 +132,23 @@ function GetXmpMetadataTextFromImage(filepath) {
         var xmp = xmpf.getXMP();
         xmpf.closeFile()
         
-        var exposureTime= xmp.getProperty(XMPConst.NS_EXIF,  "ExposureTime").value;  //
+        //$.writeln (xmp.dumpObject())
+        
+        // Das Wichtigste zuallererst: das Entstehungsdatum. Dieses Feld ist enthalten in Bildern und in Einzelframes, die aus Videos extrahiert wurden mit Lightroom
+        var dateTimeDigitized= GetXmpValue(xmp, XMPConst.NS_EXIF,  "DateTimeOriginal", null);  //
+        
+        
+        // Framerate vorhanden? Wenn ja, dann ist es ein Einzelbild aus einem Video
+        var framerate=  GetXmpValue(xmp, "http://ns.adobe.com/xmp/1.0/DynamicMedia/",  "videoFrameRate", null); 
+//        xmp.getProperty("http://ns.adobe.com/xmp/1.0/DynamicMedia/",  "videoFrameRate");  //
+        if (framerate != null) {
+            framerate = eval(framerate).toFixed(0);
+            $.writeln ("    Es handelt sich um ein Einzelbild, extrahiert aus einem Video (Framerate " + framerate + "),")
+            $.writeln ("    daher wird es keine weitergehenden Metadaten außer der Entstehungszeit geben");
+            // Bei Einzelbildern aus Videos sind keine weiteren Metadaten enthalten, das return kann also gleich hier erfolgen
+        }
+         
+        var exposureTime=  GetXmpValue(xmp, XMPConst.NS_EXIF,  "ExposureTime", null);  
         // if exposureTime String contains "/" and a other number than "1" as counter, then reformat
         if (exposureTime != null 
             && ~exposureTime .indexOf("1/") >= 0    //  NOT  "1/" at beginning of string
@@ -139,9 +159,9 @@ function GetXmpMetadataTextFromImage(filepath) {
             exposureTime = "1/" + t.toFixed(0)
         }
        
-        var exposureBias= xmp.getProperty(XMPConst.NS_EXIF,  "ExposureBiasValue").value;  //
+        var exposureBias= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ExposureBiasValue", null);  //
 
-        // ISO
+        // >>>>>  ISO
         var isoValue = null;
         if (xmp.doesPropertyExist (XMPConst.NS_EXIF,  "ISOSpeedRatings")) {
             // Property exisitiert. Das EXIF-Feld "ISOSpeedRatings" ist ein Array,warum auch immer.
@@ -153,17 +173,16 @@ function GetXmpMetadataTextFromImage(filepath) {
                 isoValue = isoValueXmp.value;
             }
         }
+        // <<<<<
               
-        var pixelX= xmp.getProperty("http://ns.adobe.com/exif/1.0/",  "PixelXDimension");  //
         var aperture= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ApertureValue", null);  //
         if (aperture != null) {
-            aperture = eval(aperture.value).toFixed(1);
+            aperture = eval(aperture).toFixed(1);
         }
 
         var shutterSpeed= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ShutterSpeedValue", null);  //
         var focalLength= GetXmpValue(xmp, XMPConst.NS_EXIF,  "focalLength", null);  //
         var focalLengthIn35mmFilm= GetXmpValue(xmp, XMPConst.NS_EXIF,  "FocalLengthIn35mmFilm", null);  //
-        var dateTimeDigitized= GetXmpValue(xmp, XMPConst.NS_EXIF,  "DateTimeDigitized", null);  //
         var exposureProgram= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ExposureProgram", null);  //
         var exposureMode= GetXmpValue(xmp, XMPConst.NS_EXIF,  "ExposureMode", null);  //
         var sensingMethod= GetXmpValue(xmp, XMPConst.NS_EXIF,  "SensingMethod", null);  //
@@ -171,11 +190,11 @@ function GetXmpMetadataTextFromImage(filepath) {
         var lens= xmp.getProperty(XMPConst.NS_EXIF_AUX, "Lens");
         var serialNumber= GetXmpValue(xmp, XMPConst.NS_EXIF,  "SerialNumber", null);  //
         
-        var cameraModel= xmp.getProperty(XMPConst.NS_TIFF,  "Model").value;  //
-        var cameraMake= xmp.getProperty(XMPConst.NS_TIFF,  "Make").value;
+        var cameraModel= GetXmpValue(xmp, XMPConst.NS_TIFF,  "Model", null);  //
+        var cameraMake= GetXmpValue(xmp, XMPConst.NS_TIFF,  "Make", null);
 
-        var myLat = xmp.getProperty(XMPConst.NS_EXIF, "exif:GPSLatitude");
-        var myLong = xmp.getProperty(XMPConst.NS_EXIF, "exif:GPSLongitude");
+        var myLat = GetXmpValue(xmp, XMPConst.NS_EXIF, "exif:GPSLatitude", null);
+        var myLong = GetXmpValue(xmp, XMPConst.NS_EXIF, "exif:GPSLongitude", null);
         
         // Belichtungs-Infomation
         if (exposureTime != null && aperture != null) {
@@ -186,7 +205,7 @@ function GetXmpMetadataTextFromImage(filepath) {
         }
         else {
             var belichtungsInfo = "";
-        }
+        }       
     
         if (isoValue != null) belichtungsInfo += " Iso " + isoValue
         
@@ -202,28 +221,33 @@ function GetXmpMetadataTextFromImage(filepath) {
             brennweitenInfo = ""
         }       
     
+    
         // Objektiv
         if (lens == "LEICA DG 12-60/F2.8-4.0") {
             lens = "L12-60"
         }
  
         var cameraInfo = bildunterschriftTrennzeichen
-        switch (cameraModel) {
-            case "DC-G9": 
-                cameraInfo += "Pana G9+" + lens;
-                break;
-            
-            case "Canon IXUS 125 HS":
-                cameraInfo += "Canon IXUS rot";
-                break;
+        if (cameraModel != null) {
+            switch (cameraModel) {
+                case "DC-G9": 
+                    cameraInfo += "Pana G9+" + lens;
+                    break;
                 
-            case "S41":
-                cameraInfo += "Handy S41";
-                break;
-                
-            default:
-                cameraInfo +=  cameraModel
-                break;            
+                case "Canon IXUS 125 HS":
+                    cameraInfo += "Canon IXUS rot";
+                    break;
+                    
+                case "S41":
+                    cameraInfo += "Handy S41";
+                    break;
+                    
+                default:
+                    cameraInfo +=  cameraModel
+                    break;            
+            }
+        } else {
+            cameraInfo = ""
         }
     
         var datestring = ""
@@ -244,7 +268,15 @@ function GetXmpMetadataTextFromImage(filepath) {
         captions.unshift(datestring + belichtungsInfo + fileInfo);
         captions.unshift(datestring + belichtungsInfo + brennweitenInfo + fileInfo);
         captions.unshift(datestring + belichtungsInfo + brennweitenInfo + cameraInfo + fileInfo);
-    
+
+        $.writeln ("    Übersicht der erzeugten Überschriften:");
+        $.writeln ("        captions[0]: " + captions[0]);
+        $.writeln ("        captions[1]: " + captions[1]);
+        $.writeln ("        captions[2]: " + captions[2]);
+        $.writeln ("        captions[3]: " + captions[3]);
+        $.writeln ("        captions[4]: " + captions[4]);
+        $.writeln ("        captions[5]: " + captions[5]);
+        
         myString = myLat + ", " + myLong;        
     }
     var retval = captions;
@@ -347,7 +379,7 @@ function CreateBildunterschriftFromMetadata(itm, layer, objStyleBildOverlay) {
     var myPage = itm.parentPage;
     $.writeln ("     File '" + linkObj.name + "', Page " + myPage.name)
    
-    //var testtext = GetMetadatenText(linkObj);
+    var testtext = GetMetadatenText(linkObj);
     var page = itm.parent
 
     // bereits Bildunterschrift zu diesem Element vorhanden? Dann löschen
